@@ -1,8 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 from .models import ScrumTable, Status, Task
 from django.contrib.auth.models import User
 from django.utils import timezone
-from .forms import TaskEditForm
+from .forms import TaskEditForm, TaskCreateForm
+from django.contrib import messages
 
 def create_test_table():
     # Создаем статусы
@@ -51,13 +53,42 @@ def create_test_table():
     test_table.Tasks.add(*tasks)
     return test_table
 
-def scrum_tables(request):
+@login_required
+def create_table(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        deadline = request.POST.get('deadline')
+        
+        if name and deadline:
+            # Создаем новую таблицу
+            table = ScrumTable.objects.create(
+                name=name,
+                deadline=deadline,
+                isMainTable=False
+            )
+            # Добавляем текущего пользователя к таблице
+            table.assigned_users.add(request.user)
+            messages.success(request, 'Таблица успешно создана!')
+            return redirect('home')
+        else:
+            messages.error(request, 'Пожалуйста, заполните все поля.')
+    
+    return render(request, 'tasks/create_table.html')
+
+@login_required
+def home(request):
     # Создаем тестовую таблицу, если её нет
     if not ScrumTable.objects.filter(isMainTable=True).exists():
         create_test_table()
     
-    tables = ScrumTable.objects.all()
-    return render(request, 'tasks/scrum_tables.html', {'tables': tables})
+    # Получаем только таблицы, доступные текущему пользователю
+    tables = ScrumTable.objects.filter(assigned_users=request.user)
+    return render(request, 'tasks/home.html', {'tables': tables})
+
+@login_required
+def scrum_tables(request, table_id):
+    table = get_object_or_404(ScrumTable, id=table_id, assigned_users=request.user)
+    return render(request, 'tasks/scrum_tables.html', {'table': table})
 
 def edit_task(request, task_id):
     task = get_object_or_404(Task, id=task_id)
@@ -73,4 +104,43 @@ def edit_task(request, task_id):
     return render(request, 'tasks/edit_task.html', {
         'form': form,
         'task': task
+    })
+
+@login_required
+def edit_table(request, table_id):
+    table = get_object_or_404(ScrumTable, id=table_id, assigned_users=request.user)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        deadline = request.POST.get('deadline')
+        
+        if name and deadline:
+            table.name = name
+            table.deadline = deadline
+            table.save()
+            messages.success(request, 'Таблица успешно обновлена!')
+            return redirect('home')
+        else:
+            messages.error(request, 'Пожалуйста, заполните все поля.')
+    
+    return render(request, 'tasks/edit_table.html', {'table': table})
+
+@login_required
+def create_task(request, table_id):
+    table = get_object_or_404(ScrumTable, id=table_id, assigned_users=request.user)
+    
+    if request.method == 'POST':
+        form = TaskCreateForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.save()
+            table.Tasks.add(task)
+            messages.success(request, 'Задача успешно создана!')
+            return redirect('scrum_tables', table_id=table.id)
+    else:
+        form = TaskCreateForm()
+    
+    return render(request, 'tasks/create_task.html', {
+        'form': form,
+        'table': table
     })

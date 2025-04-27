@@ -2,14 +2,23 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4">Скрам-таблицы</h1>
-    
-    {% for table in tables %}
-    <div class="card mb-4">
-        <div class="card-header">
-            <h2>{{ table.name }}</h2>
-            <p class="text-muted">Дедлайн: {{ table.deadline|date:"d.m.Y" }}</p>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ table.name }}</h1>
+        <div>
+            <a href="{% url 'create_task' table.id %}" class="btn btn-primary">Добавить задачу</a>
+            <a href="{% url 'edit_table' table.id %}" class="btn btn-outline-secondary">Редактировать таблицу</a>
         </div>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="card">
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
@@ -74,6 +83,5 @@
             </div>
         </div>
     </div>
-    {% endfor %}
 </div>
 {% endblock %} 
