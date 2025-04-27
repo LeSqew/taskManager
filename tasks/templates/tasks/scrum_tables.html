@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Скрам-таблицы</h1>
+    
+    {% for table in tables %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>{{ table.name }}</h2>
+            <p class="text-muted">Дедлайн: {{ table.deadline|date:"d.m.Y" }}</p>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <h3>В планах</h3>
+                    <div class="list-group">
+                        {% for task in table.Tasks.all %}
+                            {% if task.status.name == 'В планах' %}
+                            <div class="list-group-item status-planned">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="mb-1">{{ task.tittle }}</h5>
+                                        <p class="mb-1">{{ task.description }}</p>
+                                        <small class="task-meta">Приоритет: {{ task.priority }}, Сложность: {{ task.difficulty }}</small>
+                                    </div>
+                                    <a href="{% url 'edit_task' task.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <h3>В работе</h3>
+                    <div class="list-group">
+                        {% for task in table.Tasks.all %}
+                            {% if task.status.name == 'В работе' %}
+                            <div class="list-group-item status-in-progress">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="mb-1">{{ task.tittle }}</h5>
+                                        <p class="mb-1">{{ task.description }}</p>
+                                        <small class="task-meta">Приоритет: {{ task.priority }}, Сложность: {{ task.difficulty }}</small>
+                                    </div>
+                                    <a href="{% url 'edit_task' task.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <h3>Сделано</h3>
+                    <div class="list-group">
+                        {% for task in table.Tasks.all %}
+                            {% if task.status.name == 'Сделано' %}
+                            <div class="list-group-item status-done">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="mb-1">{{ task.tittle }}</h5>
+                                        <p class="mb-1">{{ task.description }}</p>
+                                        <small class="task-meta">Приоритет: {{ task.priority }}, Сложность: {{ task.difficulty }}</small>
+                                    </div>
+                                    <a href="{% url 'edit_task' task.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %} 
