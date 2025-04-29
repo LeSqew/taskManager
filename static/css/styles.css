@@ -1,0 +1,76 @@
+/* Основные стили */
+body {
+    padding-top: 20px;
+    background-color: #f8f9fa;
+}
+
+/* Стили для карточек */
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+/* Стили для списков задач */
+.list-group-item {
+    margin-bottom: 10px;
+    border-radius: 5px !important;
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+/* Стили для заголовков */
+h1, h2, h3 {
+    color: #343a40;
+}
+
+h1 {
+    margin-bottom: 30px;
+}
+
+/* Стили для навигации */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* Стили для статусов задач */
+.status-planned {
+    border-left: 4px solid #ffc107;
+}
+
+.status-in-progress {
+    border-left: 4px solid #17a2b8;
+}
+
+.status-done {
+    border-left: 4px solid #28a745;
+}
+
+/* Стили для метаданных задач */
+.task-meta {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 15px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+} 
