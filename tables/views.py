@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Project, Sprint
 from .forms import ProjectForm, SprintForm
-from tasks.models import Task
+from tasks.models import Task, Status
 
 
 # Create your views here.
@@ -25,33 +25,39 @@ def create_project(request):
             project = form.save(commit=False)
             project.creator = request.user
             project.save()
-            messages.success(request, 'Проект успешно создан!')
-            return redirect('home')
-        else:
-            messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
+            
+            # Добавляем редакторов
+            editors = form.cleaned_data.get('editors', [])
+            project.editors.add(*editors)
+            
+            return redirect('project_detail', project_id=project.id)
     else:
         form = ProjectForm()
-    
     return render(request, 'tables/create_project.html', {'form': form})
 
 @login_required
 def edit_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
-    
-    if request.user != project.creator and request.user not in project.editors.all():
-        messages.error(request, 'У вас нет доступа к этому проекту.')
+    if not project.has_access(request.user):
         return redirect('home')
     
     if request.method == 'POST':
         form = ProjectForm(request.POST, instance=project)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Проект успешно обновлен!')
-            return redirect('home')
-        else:
-            messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
+            project = form.save()
+            
+            # Обновляем список редакторов
+            editors = form.cleaned_data.get('editors', [])
+            project.editors.clear()  # Удаляем всех текущих редакторов
+            project.editors.add(*editors)  # Добавляем новых
+            
+            return redirect('project_detail', project_id=project.id)
     else:
-        form = ProjectForm(instance=project)
+        # Подготавливаем начальные данные для поля editors
+        initial_data = {
+            'editors': '\n'.join(editor.username for editor in project.editors.all())
+        }
+        form = ProjectForm(instance=project, initial=initial_data)
     
     return render(request, 'tables/edit_project.html', {'form': form, 'project': project})
 
@@ -69,13 +75,23 @@ def project_detail(request, project_id):
         'sprints': sprints
     })
 
+def ensure_statuses_exist():
+    """Проверяет наличие статусов и создает их, если они отсутствуют"""
+    statuses = ['В планах', 'В работе', 'Завершено']
+    for status_name in statuses:
+        Status.objects.get_or_create(name=status_name)
+
 @login_required
 def create_sprint(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     
+    # Проверяем доступ к проекту
     if request.user != project.creator and request.user not in project.editors.all():
         messages.error(request, 'У вас нет доступа к этому проекту.')
         return redirect('home')
+    
+    # Проверяем наличие статусов
+    ensure_statuses_exist()
     
     if request.method == 'POST':
         form = SprintForm(request.POST)
@@ -90,7 +106,10 @@ def create_sprint(request, project_id):
     else:
         form = SprintForm()
     
-    return render(request, 'tables/create_sprint.html', {'form': form, 'project': project})
+    return render(request, 'tables/create_sprint.html', {
+        'form': form,
+        'project': project
+    })
 
 @login_required
 def edit_sprint(request, sprint_id):

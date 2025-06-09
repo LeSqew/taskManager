@@ -6,7 +6,7 @@
         <div class="col-md-8 offset-md-2">
             <div class="card">
                 <div class="card-header">
-                    <h2>Создание новой задачи</h2>
+                    <h4 class="mb-0">Создание новой задачи</h4>
                     {% if sprint %}
                     <p class="text-muted">
                         Спринт: {{ sprint.name }}<br>
@@ -15,19 +15,15 @@
                     {% endif %}
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post">
                         {% csrf_token %}
-                        
-                        {% if form.errors %}
-                        <div class="alert alert-danger">
-                            Пожалуйста, исправьте ошибки в форме.
-                        </div>
-                        {% endif %}
-                        
                         {% for field in form %}
-                        <div class="form-group mb-3">
-                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                             {{ field }}
+                            {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
                             {% if field.errors %}
                             <div class="invalid-feedback d-block">
                                 {{ field.errors }}
@@ -35,10 +31,9 @@
                             {% endif %}
                         </div>
                         {% endfor %}
-                        
                         <div class="d-flex justify-content-between">
                             <button type="submit" class="btn btn-primary">Создать задачу</button>
-                            <a href="{% if sprint %}{% url 'sprint_detail' sprint.id %}{% else %}{% url 'home' %}{% endif %}" class="btn btn-secondary">Отмена</a>
+                            <a href="{% url 'sprint_detail' sprint.id %}" class="btn btn-secondary">Отмена</a>
                         </div>
                     </form>
                 </div>

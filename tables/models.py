@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class Project(models.Model):
-	name = models.CharField(max_length=255)
+	name = models.CharField(max_length=100)
 	description = models.TextField(blank=True)
 	links = models.TextField(blank=True, help_text='Ссылки на ресурсы проекта (по одной на строку)')
 	created = models.DateTimeField(auto_now_add=True)
@@ -15,6 +15,10 @@ class Project(models.Model):
 
 	def __str__(self):
 		return self.name
+
+	def has_access(self, user):
+		"""Проверяет, имеет ли пользователь доступ к проекту"""
+		return user == self.creator or user in self.editors.all()
 
 class Sprint(models.Model):
 	name = models.CharField(max_length=255)
