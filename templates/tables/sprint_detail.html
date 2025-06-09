@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>{{ sprint.name }}</h1>
+            <p class="text-muted">
+                Проект: <a href="{% url 'project_detail' project.id %}">{{ project.name }}</a>
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'create_task' sprint.id %}" class="btn btn-primary">Добавить задачу</a>
+            <a href="{% url 'edit_sprint' sprint.id %}" class="btn btn-outline-secondary">Редактировать спринт</a>
+            <a href="{% url 'delete_sprint' sprint.id %}" class="btn btn-danger">Удалить спринт</a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="card-title">Временные рамки</h5>
+                    <p class="card-text">
+                        {% if sprint.start_date %}
+                            <strong>Начало:</strong> {{ sprint.start_date|date:"d.m.Y H:i" }}<br>
+                        {% endif %}
+                        <strong>Дедлайн:</strong> {{ sprint.deadline|date:"d.m.Y H:i" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <h2 class="mb-3">Задачи</h2>
+    <div class="row">
+        {% for task in tasks %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ task.title }}</h5>
+                        <p class="card-text">{{ task.description|truncatewords:20 }}</p>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                Статус: {{ task.status.name }}<br>
+                                Приоритет: {{ task.priority }}<br>
+                                Сложность: {{ task.difficulty }}<br>
+                                Дедлайн: {{ task.deadline|date:"d.m.Y" }}
+                            </small>
+                        </p>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'view_task' task.id %}" class="btn btn-primary">Открыть</a>
+                            <div>
+                                <a href="{% url 'edit_task' task.id %}" class="btn btn-outline-secondary">Редактировать</a>
+                                <a href="{% url 'delete_task' task.id %}" class="btn btn-danger">Удалить</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    В этом спринте пока нет задач. Добавьте новую задачу, нажав на кнопку выше.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

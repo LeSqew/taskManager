@@ -3,8 +3,8 @@
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Мои таблицы</h1>
-        <a href="{% url 'create_table' %}" class="btn btn-primary">Создать таблицу</a>
+        <h1>Мои проекты</h1>
+        <a href="{% url 'create_project' %}" class="btn btn-primary">Создать проект</a>
     </div>
     
     {% if messages %}
@@ -15,29 +15,56 @@
         {% endfor %}
     {% endif %}
     
-    <div class="row">
-        {% for table in tables %}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ table.name }}</h5>
-                        <p class="card-text">
-                            <small class="text-muted">Дедлайн: {{ table.deadline|date:"d.m.Y" }}</small>
-                        </p>
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'scrum_tables' table.id %}" class="btn btn-primary">Открыть</a>
-                            <a href="{% url 'edit_table' table.id %}" class="btn btn-outline-secondary">Редактировать</a>
+    {% if created_projects %}
+        <h2 class="mb-3">Созданные проекты</h2>
+        <div class="row mb-4">
+            {% for project in created_projects %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ project.name }}</h5>
+                            <p class="card-text">{{ project.description|truncatewords:20 }}</p>
+                            <p class="card-text">
+                                <small class="text-muted">Создан: {{ project.created|date:"d.m.Y" }}</small>
+                            </p>
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'project_detail' project.id %}" class="btn btn-primary">Открыть</a>
+                                <a href="{% url 'edit_project' project.id %}" class="btn btn-outline-secondary">Редактировать</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        {% empty %}
-            <div class="col-12">
-                <div class="alert alert-info">
-                    У вас пока нет таблиц. Создайте новую таблицу, нажав на кнопку выше.
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    {% if editable_projects %}
+        <h2 class="mb-3">Проекты, где я редактор</h2>
+        <div class="row">
+            {% for project in editable_projects %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ project.name }}</h5>
+                            <p class="card-text">{{ project.description|truncatewords:20 }}</p>
+                            <p class="card-text">
+                                <small class="text-muted">Создан: {{ project.created|date:"d.m.Y" }}</small>
+                            </p>
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'project_detail' project.id %}" class="btn btn-primary">Открыть</a>
+                                <a href="{% url 'edit_project' project.id %}" class="btn btn-outline-secondary">Редактировать</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
-    </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    {% if not created_projects and not editable_projects %}
+        <div class="alert alert-info">
+            У вас пока нет проектов. Создайте новый проект, нажав на кнопку выше.
+        </div>
+    {% endif %}
 </div>
 {% endblock %} 

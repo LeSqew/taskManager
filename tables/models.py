@@ -1,18 +1,29 @@
 from django.db import models
 from django.contrib.auth.models import User
-from tasks.models import Task
 
 # Create your models here.
-class ScrumTable(models.Model):
-	isMainTable = models.BooleanField(default=False)
+class Project(models.Model):
 	name = models.CharField(max_length=255)
+	description = models.TextField(blank=True)
+	links = models.TextField(blank=True, help_text='Ссылки на ресурсы проекта (по одной на строку)')
 	created = models.DateTimeField(auto_now_add=True)
-	deadline = models.DateTimeField()
-	tasks = models.ManyToManyField(Task, related_name='scrum_tables', blank=True)
-	assigned_users = models.ManyToManyField(User, related_name='scrum_tables', blank=True)
-	assigned_tables = models.ManyToManyField('self', related_name='assigned_tables', blank=True)
+	creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_projects')
+	editors = models.ManyToManyField(User, related_name='editable_projects', blank=True)
+	
 	class Meta:
-		db_table = 'tables_ScrumTable'
+		db_table = 'tables_Project'
+
+	def __str__(self):
+		return self.name
+
+class Sprint(models.Model):
+	name = models.CharField(max_length=255)
+	start_date = models.DateTimeField(null=True, blank=True)
+	deadline = models.DateTimeField()
+	project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='sprints')
+	
+	class Meta:
+		db_table = 'tables_Sprint'
 
 	def __str__(self):
 		return self.name

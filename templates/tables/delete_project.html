@@ -4,17 +4,17 @@
 <div class="container mt-4">
     <div class="card">
         <div class="card-header">
-            <h2>Удаление таблицы</h2>
+            <h2>Удаление проекта</h2>
         </div>
         <div class="card-body">
-            <p class="lead">Вы уверены, что хотите удалить таблицу "{{ table.name }}"?</p>
-            <p>Это действие нельзя будет отменить. Все задачи в этой таблице также будут удалены.</p>
+            <p class="lead">Вы уверены, что хотите удалить проект "{{ project.name }}"?</p>
+            <p>Это действие нельзя будет отменить. Все спринты и задачи в этом проекте также будут удалены.</p>
             
             <form method="post">
                 {% csrf_token %}
                 <div class="d-flex justify-content-between">
                     <button type="submit" class="btn btn-danger">Удалить</button>
-                    <a href="{% url 'scrum_tables' table.id %}" class="btn btn-secondary">Отмена</a>
+                    <a href="{% url 'project_detail' project.id %}" class="btn btn-secondary">Отмена</a>
                 </div>
             </form>
         </div>

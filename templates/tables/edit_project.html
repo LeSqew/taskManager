@@ -6,16 +6,10 @@
         <div class="col-md-8 offset-md-2">
             <div class="card">
                 <div class="card-header">
-                    <h2>Редактирование задачи</h2>
-                    {% if task.sprint %}
-                    <p class="text-muted">
-                        Спринт: {{ task.sprint.name }}<br>
-                        Проект: {{ task.sprint.project.name }}
-                    </p>
-                    {% endif %}
+                    <h2>Редактирование проекта</h2>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post">
                         {% csrf_token %}
                         
                         {% if form.errors %}
@@ -28,6 +22,9 @@
                         <div class="form-group mb-3">
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                             {{ field }}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
                             {% if field.errors %}
                             <div class="invalid-feedback d-block">
                                 {{ field.errors }}
@@ -38,7 +35,7 @@
                         
                         <div class="d-flex justify-content-between">
                             <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                            <a href="{% if task.sprint %}{% url 'sprint_detail' task.sprint.id %}{% else %}{% url 'home' %}{% endif %}" class="btn btn-secondary">Отмена</a>
+                            <a href="{% url 'project_detail' project.id %}" class="btn btn-secondary">Отмена</a>
                         </div>
                     </form>
                 </div>
