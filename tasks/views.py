@@ -6,21 +6,42 @@ from django.utils import timezone
 from .forms import TaskEditForm, TaskCreateForm
 from django.contrib import messages
 from tables.models import Sprint, Project
+from functools import wraps
+
+def check_task_access(view_func):
+    @wraps(view_func)
+    def wrapper(request, task_id, *args, **kwargs):
+        task = get_object_or_404(Task, id=task_id)
+        if not request.user.is_authenticated:
+            messages.error(request, 'Необходимо войти в систему.')
+            return redirect('login')
+        if task.sprint:
+            project = task.sprint.project
+            if request.user != project.creator and request.user not in project.editors.all():
+                messages.error(request, 'У вас нет доступа к этой задаче.')
+                return redirect('home')
+        else:
+            messages.error(request, 'Задача не привязана к спринту.')
+            return redirect('home')
+            
+        return view_func(request, task, *args, **kwargs)
+    return wrapper
+
+def check_sprint_access(view_func):
+    @wraps(view_func)
+    def wrapper(request, sprint_id, *args, **kwargs):
+        sprint = get_object_or_404(Sprint, id=sprint_id)
+        
+        if request.user != sprint.project.creator and request.user not in sprint.project.editors.all():
+            messages.error(request, 'У вас нет доступа к этому спринту.')
+            return redirect('home')
+            
+        return view_func(request, sprint, *args, **kwargs)
+    return wrapper
 
 @login_required
-def delete_task(request, task_id):
-    task = get_object_or_404(Task, id=task_id)
-    
-    # Проверяем доступ к задаче через спринт или проект
-    if task.sprint:
-        project = task.sprint.project
-        if request.user != project.creator and request.user not in project.editors.all():
-            messages.error(request, 'У вас нет доступа к этой задаче.')
-            return redirect('home')
-    else:
-        messages.error(request, 'Задача не привязана к спринту.')
-        return redirect('home')
-    
+@check_task_access
+def delete_task(request, task):
     if request.method == 'POST':
         task.soft_delete()
         messages.success(request, 'Задача успешно удалена!')
@@ -31,32 +52,15 @@ def delete_task(request, task_id):
     })
 
 @login_required
-def view_task(request, task_id):
-    task = get_object_or_404(Task, id=task_id)
-    
-    # Проверяем доступ к задаче через спринт или проект
-    if task.sprint:
-        project = task.sprint.project
-        if request.user != project.creator and request.user not in project.editors.all():
-            messages.error(request, 'У вас нет доступа к этой задаче.')
-            return redirect('home')
-    else:
-        messages.error(request, 'Задача не привязана к спринту.')
-        return redirect('home')
-    
+@check_task_access
+def view_task(request, task):
     return render(request, 'tasks/view_task.html', {
         'task': task
     })
 
 @login_required
-def create_task(request, sprint_id):
-    sprint = get_object_or_404(Sprint, id=sprint_id)
-    
-    # Проверяем доступ к проекту
-    if request.user != sprint.project.creator and request.user not in sprint.project.editors.all():
-        messages.error(request, 'У вас нет доступа к этому проекту.')
-        return redirect('home')
-    
+@check_sprint_access
+def create_task(request, sprint):
     if request.method == 'POST':
         form = TaskCreateForm(request.POST, sprint=sprint)
         if form.is_valid():
@@ -76,19 +80,8 @@ def create_task(request, sprint_id):
     })
 
 @login_required
-def edit_task(request, task_id):
-    task = get_object_or_404(Task, id=task_id)
-    
-    # Проверяем доступ к задаче через спринт или проект
-    if task.sprint:
-        project = task.sprint.project
-        if request.user != project.creator and request.user not in project.editors.all():
-            messages.error(request, 'У вас нет доступа к этой задаче.')
-            return redirect('home')
-    else:
-        messages.error(request, 'Задача не привязана к спринту.')
-        return redirect('home')
-    
+@check_task_access
+def edit_task(request, task):
     if request.method == 'POST':
         form = TaskEditForm(request.POST, instance=task, sprint=task.sprint)
         
