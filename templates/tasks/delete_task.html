@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>Удаление задачи</h2>
+        </div>
+        <div class="card-body">
+            <p class="lead">Вы уверены, что хотите удалить задачу "{{ task.title }}"?</p>
+            <p>Это действие нельзя будет отменить.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                    <a href="{% url 'view_task' task.id %}" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

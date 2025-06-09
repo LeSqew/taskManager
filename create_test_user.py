@@ -4,7 +4,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'taskManager.settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from tasks.models import ScrumTable
+from tables.models import ScrumTable
 
 def create_test_user():
     # Создаем пользователя

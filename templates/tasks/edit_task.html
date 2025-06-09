@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Редактирование задачи</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body">
+                {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <div class="alert alert-danger">
+                        {{ field.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                
+                <div class="mb-3">
+                    <label for="id_file" class="form-label">Файл</label>
+                    {{ file_form.file }}
+                    {% if file_form.file.errors %}
+                    <div class="alert alert-danger">
+                        {{ file_form.file.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if task.files.all %}
+                <div class="mb-3">
+                    <h5>Прикрепленные файлы:</h5>
+                    <ul class="list-group">
+                        {% for file in task.files.all %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{{ file.file.url }}" target="_blank">{{ file.file.name }}</a>
+                            <small class="text-muted">{{ file.uploaded_at|date:"d.m.Y H:i" }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    <a href="{% url 'scrum_tables' table.id %}" class="btn btn-secondary">Отмена</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %} 

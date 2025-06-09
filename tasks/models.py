@@ -6,8 +6,17 @@ class Status(models.Model):
 	name = models.CharField(max_length=255)
 	def __str__(self):
 		return self.name
+
+class File(models.Model):
+	file = models.FileField(upload_to='task_files/')
+	uploaded_at = models.DateTimeField(auto_now_add=True)
+	task = models.ForeignKey('Task', on_delete=models.CASCADE, related_name='files')
+
+	def __str__(self):
+		return self.file.name
+
 class Task(models.Model):
-	tittle = models.CharField(max_length=255)
+	title = models.CharField(max_length=255)
 	description = models.TextField()
 	assigned_users = models.ManyToManyField(User, related_name='tasks', blank=True)  # Связь с пользователями
 	created = models.DateTimeField(auto_now_add=True)
@@ -16,15 +25,19 @@ class Task(models.Model):
 	status = models.ForeignKey(Status, on_delete=models.CASCADE)
 	priority = models.IntegerField()
 	difficulty = models.IntegerField()
+	removed = models.BooleanField(default=False)
+	
+	def __str__(self):
+		return self.title
 
-class ScrumTable(models.Model):
-	isMainTable = models.BooleanField(default=False)
-	name = models.CharField(max_length=255)
-	created = models.DateTimeField(auto_now_add=True)
-	deadline = models.DateTimeField()
-	Tasks = models.ManyToManyField(Task, related_name='scrum_tables', blank=True)
-	assigned_users = models.ManyToManyField(User, related_name='scrum_tables', blank=True)
-	assigned_tables = models.ManyToManyField('self', related_name='assigned_tables', blank=True)
-	
-	
+	def soft_delete(self):
+		"""Метод для мягкого удаления задачи"""
+		self.removed = True
+		self.save()
+
+	@classmethod
+	def get_active_tasks(cls):
+		"""Получить все активные (неудаленные) задачи"""
+		return cls.objects.filter(removed=False)
+
 

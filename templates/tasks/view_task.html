@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">{{ task.title }}</h2>
+            <div>
+                <a href="{% url 'edit_task' task.id %}" class="btn btn-primary">Редактировать</a>
+                <a href="{% url 'delete_task' task.id %}" class="btn btn-danger">Удалить</a>
+                <a href="{% url 'scrum_tables' table.id %}" class="btn btn-secondary">Назад к таблице</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Описание</h5>
+                    <p>{{ task.description }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Детали задачи</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Статус:</span>
+                            <span class="badge bg-primary">{{ task.status }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Приоритет:</span>
+                            <span>{{ task.priority }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Сложность:</span>
+                            <span>{{ task.difficulty }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Срок выполнения:</span>
+                            <span>{{ task.deadline|date:"d.m.Y H:i" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Создана:</span>
+                            <span>{{ task.created|date:"d.m.Y H:i" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Обновлена:</span>
+                            <span>{{ task.updated|date:"d.m.Y H:i" }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            {% if task.assigned_users.all %}
+            <div class="mb-4">
+                <h5>Назначенные пользователи</h5>
+                <div class="list-group">
+                    {% for user in task.assigned_users.all %}
+                    <div class="list-group-item">{{ user.username }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if task.files.all %}
+            <div class="mb-4">
+                <h5>Прикрепленные изображения</h5>
+                <div class="row">
+                    {% for file in task.files.all %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <img src="{{ file.file.url }}" class="card-img-top" alt="{{ file.file.name }}" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <small class="text-muted">{{ file.uploaded_at|date:"d.m.Y H:i" }}</small>
+                                </p>
+                                <a href="{{ file.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Открыть оригинал</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
