@@ -35,117 +35,51 @@
 
         <!-- Задачи по статусам -->
         <div class="col-12">
-            <div class="row">
-                <!-- В планах -->
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header bg-light">
-                            <h5 class="card-title mb-0">В планах</h5>
-                        </div>
-                        <div class="card-body">
-                            {% if sprint.tasks.all %}
-                                <div class="list-group">
-                                    {% for task in sprint.tasks.all %}
-                                        {% if task.status.name == 'В планах' and not task.removed %}
-                                            <a href="{% url 'view_task' task.id %}" class="list-group-item list-group-item-action">
-                                                <div class="d-flex w-100 justify-content-between">
-                                                    <h6 class="mb-1">{{ task.title }}</h6>
-                                                    <small class="text-muted">
-                                                        Приоритет: {{ task.priority }}
-                                                    </small>
-                                                </div>
-                                                <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
-                                                <small class="text-muted">
-                                                    Сложность: {{ task.difficulty }}
-                                                </small>
-                                            </a>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <p class="text-muted">Нет задач в планах</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- В работе -->
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header bg-light">
-                            <h5 class="card-title mb-0">В работе</h5>
-                        </div>
-                        <div class="card-body">
-                            {% if sprint.tasks.all %}
-                                <div class="list-group">
-                                    {% for task in sprint.tasks.all %}
-                                        {% if task.status.name == 'В работе' and not task.removed %}
-                                            <a href="{% url 'view_task' task.id %}" class="list-group-item list-group-item-action">
-                                                <div class="d-flex w-100 justify-content-between">
-                                                    <h6 class="mb-1">{{ task.title }}</h6>
-                                                    <small class="text-muted">
-                                                        Приоритет: {{ task.priority }}
-                                                    </small>
-                                                </div>
-                                                <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
-                                                <small class="text-muted">
-                                                    Сложность: {{ task.difficulty }}
-                                                </small>
-                                            </a>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <p class="text-muted">Нет задач в работе</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Завершено -->
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header bg-light">
-                            <h5 class="card-title mb-0">Завершено</h5>
-                        </div>
-                        <div class="card-body">
-                            {% if sprint.tasks.all %}
-                                <div class="list-group">
-                                    {% for task in sprint.tasks.all %}
-                                        {% if task.status.name == 'Завершено' and not task.removed %}
-                                            <a href="{% url 'view_task' task.id %}" class="list-group-item list-group-item-action">
-                                                <div class="d-flex w-100 justify-content-between">
-                                                    <h6 class="mb-1">{{ task.title }}</h6>
-                                                    <small class="text-muted">
-                                                        Приоритет: {{ task.priority }}
-                                                    </small>
-                                                </div>
-                                                <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
-                                                <small class="text-muted">
-                                                    Сложность: {{ task.difficulty }}
-                                                </small>
-                                            </a>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <p class="text-muted">Нет завершенных задач</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Задачи</h2>
+                <a href="{% url 'create_task' sprint.id %}" class="btn btn-primary">Создать задачу</a>
             </div>
-        </div>
 
-        <!-- Кнопки действий -->
-        <div class="col-12 mt-3">
-            <div class="d-flex justify-content-between">
-                <a href="{% url 'project_detail' sprint.project.id %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Назад к проекту
-                </a>
-                <a href="{% url 'create_task' sprint.id %}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Добавить задачу
-                </a>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="row">
+                {% for status in statuses %}
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ status.name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for task in tasks %}
+                                {% if task.status == status %}
+                                    <div class="card mb-2">
+                                        <div class="card-body">
+                                            <h6 class="card-title">{{ task.title }}</h6>
+                                            <p class="card-text">
+                                                <small class="text-muted">
+                                                    Приоритет: {{ task.priority }}<br>
+                                                    Сложность: {{ task.difficulty }}
+                                                </small>
+                                            </p>
+                                            <div class="d-flex justify-content-between">
+                                                <a href="{% url 'view_task' task.id %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                                                <a href="{% url 'edit_task' task.id %}" class="btn btn-sm btn-outline-secondary">Редактировать</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>

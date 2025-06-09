@@ -143,10 +143,13 @@ def sprint_detail(request, sprint_id):
         return redirect('home')
     
     tasks = Task.get_active_tasks().filter(sprint=sprint)
+    statuses = Status.objects.all()
+    
     return render(request, 'tables/sprint_detail.html', {
         'sprint': sprint,
         'project': project,
-        'tasks': tasks
+        'tasks': tasks,
+        'statuses': statuses
     })
 
 @login_required

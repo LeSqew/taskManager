@@ -96,8 +96,6 @@ def edit_task(request, task_id):
             form.save()
             messages.success(request, 'Задача успешно обновлена!')
             return redirect('sprint_detail', sprint_id=task.sprint.id)
-        else:
-            messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
     else:
         form = TaskEditForm(instance=task, sprint=task.sprint)
     
