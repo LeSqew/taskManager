@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container mt-4">
@@ -29,7 +30,17 @@
                             </p>
                             <div class="d-flex justify-content-between">
                                 <a href="{% url 'project_detail' project.id %}" class="btn btn-primary">Открыть</a>
-                                <a href="{% url 'edit_project' project.id %}" class="btn btn-outline-secondary">Редактировать</a>
+                                <div class="btn-group">
+                                    <a href="{% url 'edit_project' project.id %}" class="btn btn-outline-secondary">Редактировать</a>
+                                    <button type="button" 
+                                            class="btn btn-outline-danger" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteModal"
+                                            data-project-id="{{ project.id }}"
+                                            data-project-name="{{ project.name }}">
+                                        Удалить
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -67,4 +78,32 @@
         </div>
     {% endif %}
 </div>
+
+<!-- Модальное окно удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить проект "<span id="projectName" class="fw-bold"></span>"?</p>
+                <p class="text-danger">Это действие нельзя будет отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form id="deleteForm" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="project_id" id="projectId">
+                    <button type="submit" class="btn btn-danger">Удалить проект</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/modal_delete.js' %}"></script>
 {% endblock %} 

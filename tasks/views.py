@@ -7,6 +7,7 @@ from .forms import TaskEditForm, TaskCreateForm
 from django.contrib import messages
 from tables.models import Sprint, Project
 from functools import wraps
+from django.http import JsonResponse
 
 def check_task_access(view_func):
     @wraps(view_func)
@@ -57,6 +58,15 @@ def view_task(request, task):
     return render(request, 'tasks/view_task.html', {
         'task': task
     })
+
+# views.py
+
+
+def check_task_title(request):
+    title = request.GET.get('title', '')
+    exists = Task.objects.filter(title__iexact=title).exists()
+    return JsonResponse({'exists': exists})
+
 
 @login_required
 @check_sprint_access
