@@ -95,7 +95,6 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                 <form id="deleteForm" method="post" class="d-inline">
                     {% csrf_token %}
-                    <input type="hidden" name="project_id" id="projectId">
                     <button type="submit" class="btn btn-danger">Удалить проект</button>
                 </form>
             </div>

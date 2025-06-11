@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const deleteModal = document.getElementById('deleteModal');
     const projectNameSpan = document.getElementById('projectName');
-    const projectIdInput = document.getElementById('projectId');
     const deleteForm = document.getElementById('deleteForm');
     
     // Обработчик открытия модального окна
@@ -15,13 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Обновляем содержимое модального окна
         projectNameSpan.textContent = projectName;
-        projectIdInput.value = projectId;
         
         // Обновляем action формы
-        deleteForm.action = `/projects/${projectId}/delete/`;
-        
-        console.log('Project ID:', projectId); // Для отладки
-        console.log('Project Name:', projectName); // Для отладки
+        deleteForm.action = `/project/${projectId}/delete/`;
     });
 });
 

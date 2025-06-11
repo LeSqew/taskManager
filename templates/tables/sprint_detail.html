@@ -49,39 +49,26 @@
                 {% endfor %}
             {% endif %}
 
-            <div class="row">
-                {% for status in statuses %}
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">{{ status.name }}</h5>
-                        </div>
-                        <div class="card-body">
-                            {% for task in tasks %}
-                                {% if task.status == status %}
-                                    <div class="card mb-2">
-                                        <div class="card-body">
-                                            <h6 class="card-title">{{ task.title }}</h6>
-                                            <p class="card-text">
-                                                <small class="text-muted">
-                                                    Приоритет: {{ task.priority }}<br>
-                                                    Сложность: {{ task.difficulty }}
-                                                </small>
-                                            </p>
-                                            <div class="d-flex justify-content-between">
-                                                <a href="{% url 'view_task' task.id %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
-                                                <a href="{% url 'edit_task' task.id %}" class="btn btn-sm btn-outline-secondary">Редактировать</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
+            <!-- Прелоадер -->
+            <div id="preloader" style="display:none; text-align:center;">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Загрузка...</span>
                 </div>
-                {% endfor %}
             </div>
+            <!-- Список задач -->
+            <ul id="task-list" class="list-group"></ul>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Подключение jQuery (если ещё не подключён) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        window.sprintId = {{ sprint.id }};
+        window.statuses = [{% for status in statuses %}'{{ status.name }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+    </script>
+    <!-- Подключение скрипта загрузки задач -->
+    <script src="/static/js/taskLoader.js"></script>
 {% endblock %} 

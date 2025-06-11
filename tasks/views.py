@@ -106,3 +106,23 @@ def edit_task(request, task):
         'form': form,
         'task': task
     })
+
+def sprint_tasks_api(request, sprint_id):
+    """
+    API-представление для получения задач по спринту в формате JSON.
+    Возвращает список задач с основными полями.
+    """
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    tasks = Task.get_active_tasks().filter(sprint_id=sprint_id)
+    data = [
+        {
+            'id': task.id,
+            'title': task.title,
+            'status': task.status.name if task.status else None,
+            'priority': task.priority,
+            'difficulty': task.difficulty,
+        }
+        for task in tasks
+    ]
+    return JsonResponse(data, safe=False)
